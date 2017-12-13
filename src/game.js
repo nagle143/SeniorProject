@@ -7,6 +7,7 @@ import Map from "./maps.js";
 import MonsterController from "./monstercontroller.js";
 import Sprite from './sprite.js';
 import Selected from './selected.js';
+import Money from './money.js';
 //import Enemy from './Enemies/enemy.js';
 
 /** @function Math.randomBetween
@@ -66,7 +67,7 @@ export default class Game {
     this.monstercontroller = new MonsterController('wave', this.map.path, this.size.width);
     //Important variables
     this.lives = 30;
-    this.money = 100;
+    this.money = new Money(100);
     this.selected = null;
 
     //Back Buffer
@@ -190,12 +191,14 @@ export default class Game {
       default:
 
     }
+    tower.direction = direction;
   }
 
   /** @function update
     * Function to handle all updates with objects and interactions between objects
     */
   update() {
+    this.money.update();
 
     this.monstercontroller.update();
     for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
@@ -221,9 +224,8 @@ export default class Game {
       for(let j = 0; j < this.projectiles.length; j++) {
         if(this.circleCollisionDetection(this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size, this.projectiles[j].x, this.projectiles[j].y, this.projectiles[j].size)) {
           if(this.monstercontroller.enemies[i].hit(this.projectiles[j].damage, this.projectiles[j].type, this.projectiles[j].effect)) {
-            this.money += this.monstercontroller.enemies[i].bounty;
+            this.money.money += this.monstercontroller.enemies[i].bounty;
             this.monstercontroller.enemies.splice(i, 1);
-            console.log(this.money);
           }
           if(this.projectiles[j] instanceof Rocket) {
             this.projectiles[j].explode();

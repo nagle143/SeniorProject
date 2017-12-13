@@ -30,7 +30,7 @@ export default class Enemy {
     this.statusEffects = [];
     this.bounty = Math.round(this.MAXHP * 0.10 * (this.specials.length + 1));
     //Name Property
-    this.name = "";
+    this.name = "Robot";
     this.color = color;
     //Size of the monster
     this.size = Math.round(size * 0.01);
@@ -53,11 +53,11 @@ export default class Enemy {
           this.speed *= 1.5;
           break;
         case "Nano-Bots":
-          this.regeneration = Math.round(this.MAXHP * 0.03);
+          this.regeneration = Math.round(this.MAXHP * 0.06);
           this.REGEN = Math.round(this.REGEN / 1.75);
           this.regenTimer = this.REGEN;
           break;
-        case "Enhanced Power Supply":
+        case "Enhanced Power":
           this.MAXSHIELD *= 2;
           this.shield = this.MAXSHIELD;
           this.RECHARGE /= 2;

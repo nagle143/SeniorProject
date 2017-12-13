@@ -56,7 +56,7 @@ export default class MonsterController {
           temp = "Over-Clocked";
           break;
         case 3:
-          temp = "Enhanced Power Supply";
+          temp = "Enhanced Power";
           break;
         case 4:
           temp = "Enclosed Gears";

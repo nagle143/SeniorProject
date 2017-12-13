@@ -20,22 +20,35 @@ export default class RapidFire extends Tower {
     this.name = "Plasma Turret";
     this.minDamage = 15;
     this.maxDamage = 20;
+    this.image = new Image();
+    this.image.onload = () => {
+      this.size = this.size * this.image.width/this.image.height;
+    }
+    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
   }
 
   //Upgrades
-  
+
 
   update() {
     super.update();
   }
 
   render(ctx) {
+    /*
     ctx.save();
     ctx.strokeStyle = 'red';
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
+    ctx.restore();
+    */
+    ctx.save();
+    ctx.translate(-this.size / 2,-this.size / 2);
+    //ctx.rotate(this.direction);
+    ctx.translate(this.x, this.y);
+    ctx.drawImage(this.image, 0, 0, this.size, this.size);
     ctx.restore();
     super.render(ctx);
   }

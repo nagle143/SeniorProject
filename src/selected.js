@@ -12,7 +12,7 @@ export default class Selected {
     else {
       this.y = object.y;
     }
-    this.x = object.x
+    this.x = object.x + 30;
   }
 
   update() {
@@ -22,7 +22,7 @@ export default class Selected {
     else {
       this.y = this.object.y;
     }
-    this.x = this.object.x;
+    this.x = this.object.x + 30;
   }
 
   determineDisplay(ctx) {
@@ -30,13 +30,15 @@ export default class Selected {
       case 'tower':
         this.displayTowerInfo(ctx);
         break;
+      case 'monster':
+        this.displayMonsterInfo(ctx);
+        break;
       default:
 
     }
   }
 
   displayTowerInfo(ctx) {
-    console.log('here');
     ctx.save();
     ctx.strokeStyle = 'black';
     ctx.font = "12px Times New Roman";
@@ -52,6 +54,31 @@ export default class Selected {
     ctx.strokeText("Value: " + this.object.value, tempX, this.y  + yScaling * 5);
     ctx.restore();
   }
+
+  displayMonsterInfo(ctx) {
+    if(this.object.specials.length > 1) {
+      this.height = 200;
+    }
+    ctx.save();
+    ctx.strokeStyle = 'black';
+    ctx.font = "12px Times New Roman";
+    let tempX = this.x + 10;
+    let yScaling = 20;
+    if(this.y > 500) {
+      yScaling *= -1;
+    }
+    ctx.strokeText(this.object.name, tempX, this.y + yScaling);
+    ctx.strokeText("Health: " + this.object.health, tempX, this.y + yScaling * 2);
+    ctx.strokeText("Shield: " + this.object.shield, tempX, this.y  + yScaling * 3);
+    ctx.strokeText("Armor: " + this.object.armor, tempX, this.y  + yScaling * 4);
+    ctx.strokeText("Speed: " + this.object.speed, tempX, this.y  + yScaling * 5);
+    ctx.strokeText("Bounty: " + this.object.bounty, tempX, this.y  + yScaling * 6);
+    for(let i = 0; i < this.object.specials.length; i++) {
+      ctx.strokeText(this.object.specials[i], tempX, this.y  + yScaling * (i + 7));
+    }
+    ctx.restore();
+  }
+
 
   render(ctx) {
     ctx.save();

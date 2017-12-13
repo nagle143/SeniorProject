@@ -23,7 +23,7 @@ export default class Tower {
     //Name Property
     this.name = "";
     //Size of the tower
-    this.size = Math.round(size * 0.02);
+    this.size = Math.round(size * 0.10);
     this.type = "";
     this.value = 15;
     this.selected = false;

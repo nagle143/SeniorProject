@@ -17,11 +17,15 @@ export default class Animation {
     this.counter = 0;
     this.looping = looping;
     //Objects that rotate
-    this.direction = direction;
+    this.direction = 0.0
     this.facing = 'right';
   }
 
   advance() {
+    this.direction += 0.01;
+    if(this.direction >= Math.PI * 2) {
+      this.direction = 0.0;
+    }
     if(this.counter > this.rate) {
       this.frame++;
       if(this.frame >= this.images.length) {
@@ -44,7 +48,11 @@ export default class Animation {
 
   render(ctx, x, y) {
     if(this.images[this.frame]) {
-      ctx.drawImage(this.images[this.frame], x - this.width / 2, y - this.height / 2, this.width, this.height);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(this.direction);
+      ctx.drawImage(this.images[this.frame], -this.width / 2, -this.height / 2, this.width, this.height);
+      ctx.restore();
     }
   }
 }
