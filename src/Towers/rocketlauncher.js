@@ -25,7 +25,7 @@ export default class RocketLauncher extends Tower {
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
     }
-    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
+    this.image.src = 'Sprites/RocketLauncher_IDLE_00.png';
   }
 
   //Upgrades
@@ -36,6 +36,7 @@ export default class RocketLauncher extends Tower {
         break;
       case 1:
         //Upgrade applied to the projectile itself
+        this.image.src = 'Sprites/RocketLauncher_IDLE_01.png';
         break;
       case 2:
         this.increaseDamage();

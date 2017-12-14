@@ -61,6 +61,7 @@ export default class RapidFire extends Tower {
   increaseDamage() {
     this.minDamage = Math.round(this.minDamage * 1.25);
     this.maxDamage = Math.round(this.maxDamage * 1.25);
+    this.image.src = 'Sprites/PlasmaGun_IDLE_01.png';
   }
 
   update() {

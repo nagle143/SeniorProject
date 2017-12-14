@@ -27,7 +27,7 @@ export default class GlueMachine extends Tower {
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
     }
-    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
+    this.image.src = 'Sprites/GlueMachine_IDLE_00.png';
   }
 
   //Upgrades
@@ -62,6 +62,7 @@ export default class GlueMachine extends Tower {
 
   acidGlue() {
     this.effect.push('acid');
+    this.image.src = 'Sprites/GlueMachine_IDLE_01.png';
   }
 
 

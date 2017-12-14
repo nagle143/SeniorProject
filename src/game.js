@@ -194,16 +194,6 @@ export default class Game {
     event.preventDefault();
   }
 
-  displaySelected(selected) {
-    switch (selected.type) {
-      case "tower":
-        this.displayTowerInfo(selected.object);
-        break;
-      default:
-        console.log('What');
-    }
-  }
-
   checkSelected(object) {
     if(this.selected.object === object) {
       this.selected = null;

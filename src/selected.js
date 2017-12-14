@@ -21,6 +21,21 @@ export default class Selected {
       this.y = object.y;
     }
     this.x = object.x + 30;
+    this.button = new Image();
+    this.button.onload = () => {
+
+    }
+    this.button.src = 'Sprites/Button.png';
+    this.button2 = new Image();
+    this.button2.onload = () => {
+
+    }
+    this.button2.src = 'Sprites/ButtonGreen.png';
+    this.image = new Image();
+    this.image.onload = () => {
+      //this.size = this.size * this.image.width/this.image.height;
+    }
+    this.image.src = 'Sprites/ToolTip.png';
   }
 
   initButtons() {
@@ -88,7 +103,7 @@ export default class Selected {
         break;
       case 'Sentry Gun':
         this.description =  'Rapid Fire Physical Tower';
-        this.options = ['.50 Cal', 'Multi-Targeting', 'Improved Range', 'Optimized'];
+        this.options = ['Dense Rounds', 'Multi-Targeting', 'Improved Range', 'Optimized'];
         break;
       case 'Rail Gun':
         this.description =  'Slow Firing Physical Tower';
@@ -104,7 +119,7 @@ export default class Selected {
         break;
       case 'Flame Thrower':
         this.description =  'Cone Energy Tower';
-        this.options = ['White Hot', 'Pyro-Maniac', 'Improved Range', 'Acid Fire'];
+        this.options = ['Insane Heat', 'Pyro-Maniac', 'Improved Range', 'Acid Fire'];
         break;
       default:
         console.log("Invalid Name");
@@ -117,12 +132,12 @@ export default class Selected {
     ctx.font = '16px Times New Roman';
     for(let i = 0; i < this.upgrades.length; i++) {
       if(this.upgrades[i]) {
-        ctx.fillStyle = 'green';
+          ctx.drawImage(this.button2, this.upgradeButtons[i].x, this.upgradeButtons[i].y, this.upgradeButtons[i].width, this.upgradeButtons[i].height);
       }
       else {
-        ctx.fillStyle = 'blue';
+          ctx.drawImage(this.button, this.upgradeButtons[i].x, this.upgradeButtons[i].y, this.upgradeButtons[i].width, this.upgradeButtons[i].height);
       }
-      ctx.fillRect(this.upgradeButtons[i].x, this.upgradeButtons[i].y, this.upgradeButtons[i].width, this.upgradeButtons[i].height);
+
       ctx.fillStyle = 'black';
       ctx.fillText(this.options[i], this.upgradeButtons[i].x + 5, Math.round(this.upgradeButtons[i].y + this.upgradeButtons[i].height / 2));
     }
@@ -156,10 +171,9 @@ export default class Selected {
 
   render(ctx) {
     ctx.save();
-    ctx.fillStyle = 'red';
     ctx.save();
     ctx.globalAlpha = 0.50;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     ctx.restore();
     ctx.restore();
     this.determineDisplay(ctx);

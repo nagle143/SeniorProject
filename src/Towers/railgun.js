@@ -25,7 +25,7 @@ export default class RailGun extends Tower {
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
     }
-    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
+    this.image.src = 'Sprites/RailGun_IDLE_00.png';
   }
 
   //Upgrades
@@ -53,6 +53,7 @@ export default class RailGun extends Tower {
   increaseDamage() {
     this.minDamage = Math.round(this.minDamage * 1.50);
     this.maxDamage = Math.round(this.maxDamage * 1.50);
+    this.image.src = 'Sprites/RailGun_IDLE_01.png';
   }
 
   increaseRange() {

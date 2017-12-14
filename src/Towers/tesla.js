@@ -27,7 +27,7 @@ export default class Tesla extends Tower {
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
     }
-    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
+    this.image.src = 'Sprites/TeslaTower_IDLE_00.png';
   }
 
   //Upgrades
@@ -69,6 +69,7 @@ export default class Tesla extends Tower {
     this.increaseDamage();
     this.moreTargets();
     this.increaseRange();
+    this.image.src = 'Sprites/TeslaTower_IDLE_01.png';
   }
 
   targetAdded(enemy) {

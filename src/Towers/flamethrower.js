@@ -27,7 +27,7 @@ export default class FlameThrower extends Tower {
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
     }
-    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
+    this.image.src = 'Sprites/FlameThrower_IDLE_00.png';
   }
 
   //Upgrades
@@ -63,6 +63,7 @@ export default class FlameThrower extends Tower {
 
   acidFire() {
     this.effect.push('acid');
+    this.image.src = 'Sprites/FlameThrower_IDLE_01.png';
   }
 
   pyroManiac() {
