@@ -2,7 +2,7 @@
 
 export default class Selected {
   constructor(object, type, name) {
-    this.width = 100;
+    this.width = 130;
     this.height = 150;
     this.object = object;
     this.type = type;
@@ -39,9 +39,9 @@ export default class Selected {
   }
 
   initButtons() {
-    let x = 825;
+    let x = 810;
     let y = 450;
-    let width = 125;
+    let width = 140;
     let height = 75;
     let scaleY = height + 10;
     for(let i = 0; i < this.upgrades.length; i++) {
@@ -75,18 +75,18 @@ export default class Selected {
 
   displayTowerInfo(ctx) {
     ctx.save();
-    ctx.strokeStyle = 'black';
-    ctx.font = "12px Times New Roman";
+    ctx.fillStyle = 'black';
+    ctx.font = "bolder 14px Arial";
     let tempX = this.x + 10;
     let yScaling = 20;
     if(this.y > 500) {
       yScaling *= -1;
     }
-    ctx.strokeText(this.object.name, tempX, this.y + yScaling);
-    ctx.strokeText("Min D: " + this.object.minDamage, tempX, this.y + yScaling * 2);
-    ctx.strokeText("Max D: " + this.object.maxDamage, tempX, this.y  + yScaling * 3);
-    ctx.strokeText("Rate: " + +(60 / this.object.RATE).toFixed(2), tempX, this.y  + yScaling * 4);
-    ctx.strokeText("Value: " + this.object.value, tempX, this.y  + yScaling * 5);
+    ctx.fillText(this.object.name, tempX, this.y + yScaling);
+    ctx.fillText("Min D: " + this.object.minDamage, tempX, this.y + yScaling * 2);
+    ctx.fillText("Max D: " + this.object.maxDamage, tempX, this.y  + yScaling * 3);
+    ctx.fillText("Rate: " + +(60 / this.object.RATE).toFixed(2), tempX, this.y  + yScaling * 4);
+    ctx.fillText("Value: " + this.object.value, tempX, this.y  + yScaling * 5);
     ctx.restore();
     this.displayUpgrades(ctx);
   }
@@ -129,7 +129,7 @@ export default class Selected {
   displayUpgrades(ctx) {
     this.determineUpgrades();
     ctx.save();
-    ctx.font = '16px Times New Roman';
+    ctx.font = 'bolder 14px arial';
     for(let i = 0; i < this.upgrades.length; i++) {
       if(this.upgrades[i]) {
           ctx.drawImage(this.button2, this.upgradeButtons[i].x, this.upgradeButtons[i].y, this.upgradeButtons[i].width, this.upgradeButtons[i].height);
@@ -149,21 +149,21 @@ export default class Selected {
       this.height = 200;
     }
     ctx.save();
-    ctx.strokeStyle = 'black';
-    ctx.font = "12px Times New Roman";
+    ctx.fillStyle = 'black';
+    ctx.font = "bolder 14px Arial";
     let tempX = this.x + 10;
     let yScaling = 20;
     if(this.y > 500) {
       yScaling *= -1;
     }
-    ctx.strokeText(this.object.name, tempX, this.y + yScaling);
-    ctx.strokeText("Health: " + this.object.health, tempX, this.y + yScaling * 2);
-    ctx.strokeText("Shield: " + this.object.shield, tempX, this.y  + yScaling * 3);
-    ctx.strokeText("Armor: " + this.object.armor, tempX, this.y  + yScaling * 4);
-    ctx.strokeText("Speed: " + this.object.speed, tempX, this.y  + yScaling * 5);
-    ctx.strokeText("Bounty: " + this.object.bounty, tempX, this.y  + yScaling * 6);
+    ctx.fillText(this.object.name, tempX, this.y + yScaling);
+    ctx.fillText("Health: " + this.object.health, tempX, this.y + yScaling * 2);
+    ctx.fillText("Shield: " + this.object.shield, tempX, this.y  + yScaling * 3);
+    ctx.fillText("Armor: " + this.object.armor, tempX, this.y  + yScaling * 4);
+    ctx.fillText("Speed: " + this.object.speed, tempX, this.y  + yScaling * 5);
+    ctx.fillText("Bounty: " + this.object.bounty, tempX, this.y  + yScaling * 6);
     for(let i = 0; i < this.object.specials.length; i++) {
-      ctx.strokeText(this.object.specials[i], tempX, this.y  + yScaling * (i + 7));
+      ctx.fillText(this.object.specials[i], tempX, this.y  + yScaling * (i + 7));
     }
     ctx.restore();
   }
@@ -172,7 +172,7 @@ export default class Selected {
   render(ctx) {
     ctx.save();
     ctx.save();
-    ctx.globalAlpha = 0.50;
+    ctx.globalAlpha = 0.40;
     ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     ctx.restore();
     ctx.restore();

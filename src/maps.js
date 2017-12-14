@@ -1,14 +1,38 @@
-
+import MapData from './maps.json';
 
 
 export default class Map {
   constructor(width, height, seed) {
-    this.path = [{x: -10, y: 100}, {x: 200, y: 100}, {x: 200, y: 500}, {x: 600, y: 500}, {x: 600, y: 100}, {x: 300, y: 100},
-       {x: 300, y: 700}, {x: width + 10, y: 700}];
+    /*this.path = [{x: -10, y: 100}, {x: 200, y: 100}, {x: 200, y: 500}, {x: 600, y: 500}, {x: 600, y: 100}, {x: 300, y: 100},
+       {x: 300, y: 700}, {x: width + 10, y: 700}]; */
+    this.path = [];
     this.seed = seed;
     this.width = width;
     this.height = height;
+    this.getTrack();
+    this.tiles = [];
+    this.setTiles();
+    this.factory = new Image();
+    this.factory.src = 'Sprites/RobotFactory.png';
+    this.generator = new Image();
+    this.generator.src = 'Sprites/Generator.png';
+    this.general = new Image();
+    this.general.src = 'Sprites/Path.png';
     //this.generateTrack();
+  }
+
+  getTrack() {
+    for(let i = 0; i < MapData.map1.path.length; i++) {
+      this.path.push({x: MapData.map1.path[i].x + MapData.tileWidth / 2, y: MapData.map1.path[i].y + MapData.tileHeight / 2});
+    }
+  }
+
+  setTiles() {
+    for(let i = 0; i < MapData.map1.tiles.length; i++) {
+      if(MapData.map1.tiles[i] !== 0) {
+        this.tiles.push({x: (i % 16) * MapData.tileWidth, y: Math.floor(i / 16) * MapData.tileHeight, tile: MapData.map1.tiles[i]});
+      }
+    }
   }
 
   generateTrack() {
@@ -94,13 +118,27 @@ export default class Map {
 
   render(ctx) {
     ctx.save();
-    ctx.strokeStyle = 'red';
-    ctx.beginPath();
-    ctx.moveTo(this.path[0].x, this.path[0].y);
-    for(let i = 1; i < this.path.length; i++) {
-      ctx.lineTo(this.path[i].x, this.path[i].y);
+    for(let i = 0; i < this.tiles.length; i++) {
+      switch (this.tiles[i].tile) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        ctx.drawImage(this.general, this.tiles[i].x, this.tiles[i].y, MapData.tileWidth, MapData.tileHeight);
+          break;
+        case 8:
+          ctx.drawImage(this.factory, this.tiles[i].x, this.tiles[i].y, MapData.tileWidth, MapData.tileHeight);
+          break;
+        case 9:
+          ctx.drawImage(this.generator, this.tiles[i].x, this.tiles[i].y, MapData.tileWidth, MapData.tileHeight);
+          break;
+        default:
+          console.log("Error in Tile Rendering");
+      }
+      //ctx.fillRect(this.tiles[i].x, this.tiles[i].y, MapData.tileWidth, MapData.tileHeight);
     }
-    ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(800, 0);
     ctx.lineTo(800, 800);

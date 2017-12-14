@@ -457,13 +457,13 @@ export default class Game {
   render() {
     this.backBufferContext.fillstyle = 'black';
     this.backBufferContext.fillRect(0, 0, this.size.width * 1.2, this.size.height);
+    this.map.render(this.backBufferContext);
     this.towers.forEach(tower => {
       tower.render(this.backBufferContext);
     });
     this.projectiles.forEach(projectile => {
       projectile.render(this.backBufferContext);
     });
-    this.map.render(this.backBufferContext);
     this.monstercontroller.render(this.backBufferContext);
     if(this.selected) {
       this.selected.render(this.backBufferContext);
