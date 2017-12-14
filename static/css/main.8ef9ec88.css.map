@@ -1,0 +1,1 @@
+{"version":3,"sources":["game.css"],"names":[],"mappings":"AAAA,QACE,kBACA,SACA,QACA,qBAAwB","file":"static/css/main.8ef9ec88.css","sourcesContent":["#canvas {\r\n  position: absolute;\r\n  left: 5px;\r\n  top: 5px;\r\n  background-color: black;\r\n}\r\n\n\n\n// WEBPACK FOOTER //\n// ./src/game.css"],"sourceRoot":""}
