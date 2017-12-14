@@ -23,10 +23,12 @@ export default class Tower {
     //Name Property
     this.name = "";
     //Size of the tower
-    this.size = Math.round(size * 0.10);
+    this.size = 20;
     this.type = "";
+    this.effect = null;
     this.value = 15;
     this.selected = false;
+    this.upgrades = [false, false, false, false];
   }
 
   /** @function track
@@ -57,6 +59,13 @@ export default class Tower {
   }
 
   render(ctx) {
+    ctx.save();
+    ctx.strokeStyle= 'violet';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
     if(this.selected) {
       ctx.save();
       ctx.strokeStyle = "white";

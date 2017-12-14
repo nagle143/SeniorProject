@@ -50,7 +50,7 @@ export default class Animation {
     if(this.images[this.frame]) {
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(this.direction);
+      //ctx.rotate(this.direction);
       ctx.drawImage(this.images[this.frame], -this.width / 2, -this.height / 2, this.width, this.height);
       ctx.restore();
     }

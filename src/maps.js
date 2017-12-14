@@ -101,6 +101,10 @@ export default class Map {
       ctx.lineTo(this.path[i].x, this.path[i].y);
     }
     ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(800, 0);
+    ctx.lineTo(800, 800);
+    ctx.stroke();
     ctx.restore();
   }
 }

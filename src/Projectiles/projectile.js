@@ -1,13 +1,14 @@
 
 
 export default class Projectile {
-  constructor(x, y, damage, direction, range, type, target, size) {
+  constructor(x, y, damage, direction, range, type, effect, target, size, upgrades) {
     this.x = x;
     this.y = y;
     this.damage = damage;
     this.direction = direction;
     this.range = range;
     this.type = type;
+    this.effect = effect;
     this.mag = 3;
     this.speed = {x: 0, y: 0};
     this.size = Math.round(size * 0.005);

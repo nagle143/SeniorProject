@@ -3,9 +3,14 @@ import RapidFire from "./Towers/rapidfire.js";
 import RapidShot from "./Projectiles/rapidshot.js";
 import RocketLauncher from "./Towers/rocketlauncher.js";
 import Rocket from "./Projectiles/rocket.js";
+import Sentry from "./Towers/sentry.js";
+import RailGun from "./Towers/railgun.js";
+import Tesla from "./Towers/tesla.js";
+import GlueMachine from "./Towers/gluemachine.js";
+import FlameThrower from "./Towers/flamethrower.js";
+
 import Map from "./maps.js";
 import MonsterController from "./monstercontroller.js";
-import Sprite from './sprite.js';
 import Selected from './selected.js';
 import Money from './money.js';
 //import Enemy from './Enemies/enemy.js';
@@ -63,12 +68,18 @@ export default class Game {
     this.initMode(mode);
     this.towers.push(new RapidFire(400, 400, this.size.width));
     this.towers.push(new RapidFire(400, 250, this.size.width));
+    this.towers.push(new Sentry(400, 600, this.size.width));
+    this.towers.push(new RailGun(600, 600, this.size.width));
+    this.towers.push(new Tesla(325, 475, this.size.width));
+    this.towers.push(new FlameThrower(550, 475, this.size.width));
     this.towers.push(new RocketLauncher(250, 300, this.size.width));
+    this.towers.push(new GlueMachine(250, 450, this.size.width));
     this.monstercontroller = new MonsterController('wave', this.map.path, this.size.width);
     //Important variables
     this.lives = 30;
     this.money = new Money(100);
     this.selected = null;
+    this.mouseMode = 'selecting';
 
     //Back Buffer
     this.backBufferCanvas = document.getElementById("canvas");
@@ -86,31 +97,64 @@ export default class Game {
     //Binders
     this.loop = this.loop.bind(this);
     this.render = this.render.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    window.onkeydown = this.handleKeyDown;
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.screenBufferCanvas.onmousedown = this.handleMouseDown;
     this.screenBufferCanvas.onmouseup = this.handleMouseUp;
 
-    //60fps
-    this.interval = setInterval(this.loop, 1000/60);
+    //100fps
+    this.interval = setInterval(this.loop, 1000/100);
   }
 
   //Mouse Events
   handleMouseDown(event) {
     event.preventDefault();
-    this.getObject(event.clientX, event.clientY);
+    switch (this.mouseMode) {
+      case 'selecting':
+        this.getObject(event.clientX, event.clientY);
+        break;
+      case 'build':
+        this.checkSpot(event.clientX, event.clientY);
+        break;
+      default:
+    }
+  }
+
+  handleKeyDown(event) {
+    event.preventDefault();
+    console.log(event.keyCode);
+    switch (event.keyCode) {
+      case 66:
+        this.mouseMode = 'build';
+        break;
+      default:
+
+    }
   }
 
   getObject(x, y) {
     let found = false;
     if(this.selected) {
       //setting the selected objects bool of being selected to false
-      this.selected.object.selected = false;
-      this.selected = null;
+      for(let i = 0; i < this.selected.upgradeButtons.length; i++) {
+        if(this.circleRectangleCollision(x, y, 2, this.selected.upgradeButtons[i].x, this.selected.upgradeButtons[i].y, this.selected.upgradeButtons[i].width, this.selected.upgradeButtons[i].height)) {
+          found = true;
+          if(!this.selected.object.upgrades[i]) {
+            this.selected.object.applyUpgrade(i);
+          }
+          break;
+        }
+      }
+      if(!found) {
+        this.selected.object.selected = false;
+        this.selected = null;
+      }
     }
     this.towers.forEach(tower => {
-      if(this.circleCollisionDetection(x, y, 5, tower.x, tower.y, tower.size)) {
+      if(this.circleCollisionDetection(x, y, 2, tower.x, tower.y, tower.size)) {
         //this.selected = {object: tower, type: 'tower'};
-        this.selected = new Selected(tower, 'tower');
+        this.selected = new Selected(tower, 'tower', tower.name);
         tower.selected = true;
         found = true;
       }
@@ -119,12 +163,31 @@ export default class Game {
       return;
     }
     this.monstercontroller.enemies.forEach(monster => {
-      if(this.circleCollisionDetection(x, y, 5, monster.x, monster.y, monster.size)) {
+      if(this.circleCollisionDetection(x, y, 4, monster.x, monster.y, monster.size)) {
           this.selected = new Selected(monster, 'monster');
           monster.selected = true;
           found = true;
       }
     });
+  }
+
+  checkSpot(x, y) {
+    let blocked = false;
+    if(x > 750 || x < 50) {
+      return;
+    }
+    if(y < 50 || y > 750) {
+      return;
+    }
+    this.towers.forEach(tower => {
+      if(this.circleCollisionDetection(x, y, tower.size, tower.x, tower.y, tower.size)) {
+        //this.selected = {object: tower, type: 'tower'};
+        blocked = true;
+      }
+    });
+    if(blocked) {
+      console.log('BLOCKED');
+    }
   }
 
   handleMouseUp(event) {
@@ -134,11 +197,16 @@ export default class Game {
   displaySelected(selected) {
     switch (selected.type) {
       case "tower":
-      console.log('here');
         this.displayTowerInfo(selected.object);
         break;
       default:
         console.log('What');
+    }
+  }
+
+  checkSelected(object) {
+    if(this.selected.object === object) {
+      this.selected = null;
     }
   }
 
@@ -170,28 +238,178 @@ export default class Game {
     return true;
   }
 
-  createProjectile(tower, enemy) {
+  circleRectangleCollision(cx, cy, cr, rx, ry, rw, rh) {
+    //Find the center of the button
+    let rec = {x: rx + rw / 2, y: ry + rh / 2}
+    //Distances between centers
+    let dx = Math.abs(cx - rec.x);
+    let dy = Math.abs(cy - rec.y);
+
+    //Broad distance check
+    if (dx > (rw / 2 + cr)) { return false; }
+    if (dy > (rh / 2 + cr)) { return false; }
+
+    //Single dimension checks
+    if (dx <= (rw / 2)) { return true; }
+    if (dy <= (rh / 2)) { return true; }
+
+    //Corner Check
+    let dist = Math.pow((dx - rw / 2) , 2) + Math.pow((dy - rh / 2), 2);
+    return (dist <= (cr * cr));
+  }
+
+  createProjectile(tower, enemy, direction) {
     let x = 0;
     let y = 0;
-    let direction = 0.0;
     let damage = Math.randomInt(tower.minDamage, tower.maxDamage + 1);
+    //This is to keep the projectiles from upgrading mid flight
+    let upgrades = [];
+    tower.upgrades.forEach(upgrade => {
+      upgrades.push(upgrade);
+    });
     switch (tower.name) {
       case "Plasma Turret":
-        direction = Math.getDirection(tower.x, tower.y, enemy.x, enemy.y);
-        x = tower.x + Math.sin(direction) * tower.size;
-        y = tower.y - Math.cos(direction) * tower.size;
-        this.projectiles.push(new RapidShot(x, y, damage, direction, tower.range, "what", enemy, this.size.width));
+        x = tower.x + Math.sin(direction) * tower.size * 0.60;
+        y = tower.y - Math.cos(direction) * tower.size * 0.60;
+        this.projectiles.push(new RapidShot(x, y, damage, direction, tower.range, tower.type, tower.effect, enemy, this.size.width, upgrades));
         break;
       case "Rocket Launcher":
-        direction = Math.getDirection(tower.x, tower.y, enemy.x, enemy.y);
+      case "Industrial Gluer":
         x = tower.x + Math.sin(direction) * tower.size;
         y = tower.y - Math.cos(direction) * tower.size;
-        this.projectiles.push(new Rocket(x, y, damage, direction, tower.range, "what", enemy, this.size.width));
+        this.projectiles.push(new Rocket(x, y, damage, direction, tower.range, tower.type, tower.effect, enemy, this.size.width, upgrades));
         break;
       default:
 
     }
-    tower.direction = direction;
+  }
+
+  shoot(tower, enemy) {
+    tower.reloading = true;
+    let direction = 0.0;
+    let damage = Math.randomInt(tower.minDamage, tower.MaxDamage + 1);
+    switch (tower.name) {
+      case 'Plasma Turret':
+      case 'Rocket Launcher':
+      case 'Industrial Gluer':
+        direction = Math.getDirection(tower.x, tower.y, enemy.x, enemy.y);
+        tower.direction = direction;
+        this.createProjectile(tower, enemy, direction);
+        break;
+      case 'Sentry Gun':
+      case 'Rail Gun':
+        direction = Math.getDirection(tower.x, tower.y, enemy.x, enemy.y);
+        tower.direction = direction;
+        enemy.hit(damage, tower.type, tower.effect);
+        break;
+      case 'Flame Thrower':
+        tower.targets = enemy;
+        tower.direction = Math.getDirection(tower.x, tower.y, enemy.x, enemy.y);
+        this.monstercontroller.enemies.forEach(monster => {
+            if(this.circleCollisionDetection(tower.x, tower.y, tower.range, monster.x, monster.y, monster.size)) {
+              direction = Math.getDirection(tower.x, tower.y, monster.x, monster.y);
+              let cone = Math.PI / 8;
+              if(tower.direction < direction + cone && tower.direction > direction - cone) {
+                damage = Math.randomInt(tower.minDamage, tower.maxDamage + 1);
+                monster.hit(damage, tower.type, tower.effect);
+              }
+            }
+        });
+        break;
+      default:
+        console.log('Error in shoot')
+    }
+  }
+
+  targeting(tower) {
+    switch (tower.name) {
+      case 'Plasma Turret':
+      case 'Rocket Launcher':
+      case 'Rail Gun':
+      case 'Industrial Gluer':
+      case 'Flame Thrower':
+        for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
+          if(this.circleCollisionDetection(tower.x, tower.y, tower.range, this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size)) {
+            this.shoot(tower, this.monstercontroller.enemies[i]);
+            break;
+          }
+        }
+        break;
+      case 'Sentry Gun':
+          if(!tower.upgrades[1]) {
+            for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
+              if(this.circleCollisionDetection(tower.x, tower.y, tower.range, this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size)) {
+                this.shoot(tower, this.monstercontroller.enemies[i]);
+                break;
+              }
+            }
+          }
+          else {
+            let targets = [];
+            for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
+              if(this.circleCollisionDetection(tower.x, tower.y, tower.range, this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size)) {
+                targets.push(this.monstercontroller.enemies[i]);
+                if(targets.length >= 3) {
+                  break;
+                }
+              }
+            }
+            targets.forEach(target => {
+              this.shoot(tower, target);
+            });
+          }
+          break;
+      case 'Tesla Tower':
+        if(tower.targets.length <= tower.maxTargets) {
+          for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
+            if(this.circleCollisionDetection(tower.x, tower.y, tower.range, this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size)) {
+              let check = false;
+              tower.targets.forEach( targets => {
+                if(targets.target === this.monstercontroller.enemies[i]) {
+                  check = true;
+                }
+              });
+              if(!check) {
+                tower.targetAdded(this.monstercontroller.enemies[i]);
+              }
+              if(tower.targets.length >=  tower.maxTargets) {
+                break;
+              }
+            }
+          }
+        }
+        break;
+      default:
+
+    }
+  }
+
+  resolveProjectileCollision(projectile, enemy) {
+    if(projectile instanceof Rocket) {
+      projectile.explode();
+      for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
+        if(this.circleCollisionDetection(this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size, projectile.x, projectile.y, projectile.size)) {
+          this.monstercontroller.enemies[i].hit(projectile.damage, projectile.type, projectile.effect);
+        }
+      }
+    }
+    else if (projectile instanceof RapidShot) {
+      enemy.hit(projectile.damage, projectile.type, projectile.effect);
+    }
+  }
+
+  removeMonster(ID) {
+    if(this.selected) {
+      this.checkSelected(this.monstercontroller.enemies[ID]);
+    }
+    this.monstercontroller.enemies.splice(ID, 1);
+  }
+
+  removeTower(ID) {
+    if(this.selected) {
+      this.checkSelected(this.towers[ID]);
+    }
+    this.towers.splice(ID, 1);
   }
 
   /** @function update
@@ -202,38 +420,30 @@ export default class Game {
 
     this.monstercontroller.update();
     for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
-      if(this.monstercontroller.enemies[i].update()) {
+      let check = this.monstercontroller.enemies[i].update();
+      if(check === 'end') {
         this.lives--;
-        this.monstercontroller.enemies.splice(i, 1);
+        this.removeMonster(i);
+        console.log("Lives: " + this.lives);
+      }
+      else if(check === 'killed') {
+        this.money.money += this.monstercontroller.enemies[i].bounty;
+        this.removeMonster(i);
       }
     }
 
     this.towers.forEach(tower => {
       if(!tower.reloading) {
-        for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
-          if(this.circleCollisionDetection(tower.x, tower.y, tower.range, this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size)) {
-            this.createProjectile(tower, this.monstercontroller.enemies[i]);
-            tower.reloading = true;
-            break;
-          }
-        }
+        this.targeting(tower);
       }
     });
 
     for(let i = 0; i < this.monstercontroller.enemies.length; i++) {
       for(let j = 0; j < this.projectiles.length; j++) {
         if(this.circleCollisionDetection(this.monstercontroller.enemies[i].x, this.monstercontroller.enemies[i].y, this.monstercontroller.enemies[i].size, this.projectiles[j].x, this.projectiles[j].y, this.projectiles[j].size)) {
-          if(this.monstercontroller.enemies[i].hit(this.projectiles[j].damage, this.projectiles[j].type, this.projectiles[j].effect)) {
-            this.money.money += this.monstercontroller.enemies[i].bounty;
-            this.monstercontroller.enemies.splice(i, 1);
-          }
-          if(this.projectiles[j] instanceof Rocket) {
-            this.projectiles[j].explode();
-          }
-          else {
-            this.projectiles.splice(j, 1);
-            break;
-          }
+          this.resolveProjectileCollision(this.projectiles[j], this.monstercontroller.enemies[i]);
+          this.projectiles.splice(j, 1);
+          break;
         }
       }
     }
@@ -257,17 +467,17 @@ export default class Game {
   render() {
     this.backBufferContext.fillstyle = 'black';
     this.backBufferContext.fillRect(0, 0, this.size.width * 1.2, this.size.height);
-    if(this.selected) {
-      this.selected.render(this.backBufferContext);
-    }
-    this.projectiles.forEach(projectile => {
-      projectile.render(this.backBufferContext);
-    });
     this.towers.forEach(tower => {
       tower.render(this.backBufferContext);
     });
+    this.projectiles.forEach(projectile => {
+      projectile.render(this.backBufferContext);
+    });
     this.map.render(this.backBufferContext);
     this.monstercontroller.render(this.backBufferContext);
+    if(this.selected) {
+      this.selected.render(this.backBufferContext);
+    }
     //Bit blit the back buffer onto the screen
     this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
   }

@@ -32,7 +32,6 @@ export default class Money {
     if(this.timer === 0) {
       this.money += this.income;
       this.timer = 180;
-      console.log(this.money);
     }
   }
 }

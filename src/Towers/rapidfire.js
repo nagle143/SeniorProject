@@ -18,6 +18,7 @@ export default class RapidFire extends Tower {
     this.targets = [];
     //Name Property
     this.name = "Plasma Turret";
+    this.type = 'energy';
     this.minDamage = 15;
     this.maxDamage = 20;
     this.image = new Image();
@@ -27,28 +28,50 @@ export default class RapidFire extends Tower {
     this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
   }
 
-  //Upgrades
+  applyUpgrade(index) {
+    switch (index) {
+      case 0:
+        this.decreaseRate();
+        break;
+      case 1:
+        this.increaseDamage();
+        break;
+      case 2:
+        this.increaseRange();
+        break;
+      case 3:
+        this.decreaseRate();
+        break;
+      default:
+        console.log('Invalid Upgrade');
+        return;
+    }
+    this.upgrades[index] = true;
+  }
 
+  //Upgrades
+  decreaseRate() {
+    this.RATE = Math.round(this.RATE * 0.70);
+  }
+
+  increaseRange() {
+    this.range = Math.round(this.range * 1.25);
+  }
+
+  increaseDamage() {
+    this.minDamage = Math.round(this.minDamage * 1.25);
+    this.maxDamage = Math.round(this.maxDamage * 1.25);
+  }
 
   update() {
     super.update();
   }
 
   render(ctx) {
-    /*
     ctx.save();
-    ctx.strokeStyle = 'red';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.restore();
-    */
-    ctx.save();
-    ctx.translate(-this.size / 2,-this.size / 2);
-    //ctx.rotate(this.direction);
     ctx.translate(this.x, this.y);
-    ctx.drawImage(this.image, 0, 0, this.size, this.size);
+    ctx.rotate(this.direction - Math.PI / 2);
+    ctx.drawImage(this.image, -this.size, -this.size, this.image.width, this.image.height);
     ctx.restore();
     super.render(ctx);
   }

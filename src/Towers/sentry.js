@@ -18,11 +18,50 @@ export default class Sentry extends Tower {
     this.targets = [];
     //Name Property
     this.name = "Sentry Gun";
+    this.type = 'kinetic';
     this.minDamage = 18;
     this.maxDamage = 22;
+    this.image = new Image();
+    this.image.onload = () => {
+      this.size = this.size * this.image.width/this.image.height;
+    }
+    this.image.src = 'Sprites/PlasmaGun_IDLE_00.png';
   }
 
   //Upgrades
+  applyUpgrade(index) {
+    switch (index) {
+      case 0:
+        this.increaseDamage();
+        break;
+      case 1:
+        //MultiTargeting, handled in the game.js file
+        break;
+      case 2:
+        this.increaseRange();
+        break;
+      case 3:
+        this.decreaseRate();
+        break;
+      default:
+        console.log('Invalid Upgrade');
+        return;
+    }
+    this.upgrades[index] = true;
+  }
+
+  increaseDamage() {
+    this.minDamage = Math.round(this.minDamage * 1.15);
+    this.maxDamage = Math.round(this.maxDamage * 1.25);
+  }
+
+  increaseRange() {
+    this.range = Math.round(this.range * 1.25);
+  }
+
+  decreaseRate() {
+    this.RATE = Math.round(this.RATE * 0.70);
+  }
 
 
   update() {
@@ -31,11 +70,9 @@ export default class Sentry extends Tower {
 
   render(ctx) {
     ctx.save();
-    ctx.strokeStyle = 'purple';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.direction - Math.PI / 2);
+    ctx.drawImage(this.image, -this.size, -this.size, this.image.width, this.image.height);
     ctx.restore();
     super.render(ctx);
   }

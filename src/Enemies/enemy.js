@@ -13,6 +13,7 @@ export default class Enemy {
     this.direction = Math.getDirection(this.x, this.y, this.track[1].x, this.track[1].y);
     //Speed of the monster
     this.speed = speed;
+    this.speedModifer = 1.00;
     this.velocity = {x: Math.sin(this.direction) * this.speed, y: -Math.cos(this.direction) * this.speed};
     //Basic Properties
     this.MAXHP = health;
@@ -23,7 +24,7 @@ export default class Enemy {
     this.armor = armor;
     this.MAXSHIELD = shield;
     this.shield = this.MAXSHIELD;
-    this.RECHARGE = 120;
+    this.RECHARGE = 60;
     this.rechargeRate = this.RECHARGE;
     this.specials = specials;
     this.applySpecials();
@@ -35,12 +36,13 @@ export default class Enemy {
     //Size of the monster
     this.size = Math.round(size * 0.01);
     this.selected = false;
+    this.dead = false;
     this.sprite = new Sprite('Test', this.direction);
   }
 
-  calculateMove(modifier) {
-    this.velocity.x = Math.sin(this.direction) * this.speed * modifier;
-    this.velocity.y = -Math.cos(this.direction) * this.speed * modifier;
+  calculateMove() {
+    this.velocity.x = Math.sin(this.direction) * this.speed * this.speedModifer;
+    this.velocity.y = -Math.cos(this.direction) * this.speed * this.speedModifer;
   }
 
   applySpecials() {
@@ -68,13 +70,61 @@ export default class Enemy {
     });
   }
 
-  addStatusEffect(status) {
-    for(let i = 0; i < this.statusEffects.length; i++) {
-      if(status.name === this.statusEffects[i].name) {
-        this.statusEffects[i].timer = status.timer;
+  addStatusEffects(effects) {
+    effects.forEach(status => {
+      let check = false;
+      for(let i = 0; i < this.statusEffects.length; i++) {
+        if(status === this.statusEffects[i].name) {
+          if(status !== 'acid' || status !== 'burn') {
+            this.statusEffects[i].timer = 60;
+          }
+          check = true;
+          break;
+        }
       }
-      else {
-        this.statusEffects.push(status);
+      if(!check) {
+        if(status === 'acid') {
+          this.statusEffects.push({name: status, timer: 10})
+        }
+        else {
+          this.statusEffects.push({name: status, timer: 120});
+        }
+      }
+    });
+  }
+
+  applyStatusEffects() {
+    for(let i = 0; i < this.statusEffects.length; i++) {
+      switch (this.statusEffects[i].name) {
+        case 'slow':
+          this.speedModifer = 0.50;
+          this.statusEffects[i].timer--;
+          if(this.statusEffects[i].timer <= 0) {
+            this.speedModifer = 1.00;
+            this.statusEffects.splice(i, 1);
+          }
+          this.calculateMove();
+          break;
+        case 'burn':
+          if(this.statusEffects[i].timer % 10 === 0) {
+            let damage = 6 - this.armor * 2;
+            if(damage > 0) {
+              this.health -= damage;
+            }
+          }
+          this.statusEffects[i].timer--;
+          break;
+        case 'acid':
+          if(this.statusEffects[i].timer % 5 === 0) {
+            this.armor--;
+            if(this.armor < 0) {
+              this.armor = 0;
+            }
+          }
+          this.statusEffects[i].timer--;
+          break;
+        default:
+
       }
     }
   }
@@ -89,51 +139,70 @@ export default class Enemy {
   }
 
   hit(damage, type, effect) {
-
+    let damageTaken = 0;
     if(this.shield > 0) {
       if(type === 'energy') {
         this.shield -= Math.round(damage * 1.25);
         if(this.shield < 0) {
-          this.health -= Math.round(this.shield / 2 - this.armor * 2);
+          damageTaken = Math.round(this.shield * 0.75 + this.armor * 2);
+          if(damageTaken < 0) {
+            this.health += damageTaken;
+          }
           this.shield = 0;
         }
       }
       else if (type === 'kinetic') {
         this.shield -= Math.round(damage * 0.75);
         if(this.shield < 0) {
-          this.health -= Math.round(this.shield * 1.25 - this.armor * 2);
+          damageTaken = Math.round(this.shield * 1.25 + this.armor * 2);
+          if(damageTaken < 0) {
+            this.health += damageTaken;
+          }
           this.shield = 0;
         }
       }
     }
     else {
+      if(effect) {
+        this.addStatusEffects(effect);
+      }
       if(type === 'energy') {
-        this.health -= Math.round(damage * 0.75 - this.armor * 2);
+        damageTaken = Math.round(damage * 0.75 - this.armor * 2);
+        if(damageTaken > 0) {
+          this.health -= damageTaken;
+        }
       }
       else if (type === 'kinetic') {
-        this.health -= Math.round(damage * 1.25 - this.armor * 2);
+        damageTaken = Math.round(damage * 1.25 - this.armor * 2);
+        if(damageTaken > 0) {
+          this.health -= damageTaken;
+        }
       }
     }
-    if(this.health <= 0) {
-      return true;
-    }
-    return false;
   }
 
   update() {
     //Pathing
     this.sprite.update();
+    if(this.statusEffects.length > 0) {
+      this.applyStatusEffects();
+    }
     this.x += this.velocity.x;
     this.y += this.velocity.y;
     if(this.checkpointCheck(this.track[this.checkpoint])) {
       this.checkpoint++;
       if(this.checkpoint < this.track.length) {
         this.direction = Math.getDirection(this.x, this.y, this.track[this.checkpoint].x, this.track[this.checkpoint].y);
-        this.calculateMove(1.00);
+        this.calculateMove(this.speedModifer);
       }
       else {
-        return true;
+        return 'end';
       }
+    }
+
+    if(this.health <= 0) {
+      this.dead = true;
+      return 'killed'
     }
 
     //Status Efects
@@ -162,7 +231,6 @@ export default class Enemy {
         this.rechargeRate = this.RECHARGE;
       }
     }
-    return false;
   }
 
   render(ctx) {

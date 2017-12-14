@@ -33,7 +33,7 @@ export default class MonsterController {
       else if (random > 0.60 - this.wave * 2 / 100) {
         specials = this.randomSpecials(1);
       }
-      this.generated.push({x: this.track[0].x, y: this.track[0].y, speed: 0.75, health: Math.round((25 + this.wave) * 1.5), armor: Math.round((2 + this.wave) * 1.10), properties: specials, path: this.track, shield: Math.round((10 + this.wave) * 1.50), color: 'red'});
+      this.generated.push({x: this.track[0].x, y: this.track[0].y, speed: 0.75, health: Math.round((25 + this.wave) * 1.5), armor: Math.round((1 + this.wave) * 1.10), properties: specials, path: this.track, shield: Math.round((10 + this.wave) * 1.50), color: 'red'});
     }
     console.log(this.generated);
   }
@@ -42,7 +42,7 @@ export default class MonsterController {
     let specials = [];
 
     while(specials.length < num) {
-      let random = Math.randomInt(0, 5);
+      let random = Math.randomInt(0, 3);
       let check = false;
       let temp = null;
       switch (random) {
@@ -58,12 +58,8 @@ export default class MonsterController {
         case 3:
           temp = "Enhanced Power";
           break;
-        case 4:
-          temp = "Enclosed Gears";
-          break;
-        case 5:
-          temp = "Heat Sync";
-          break;
+        default:
+          console.log("Some how in default");
       }
       for(let j = 0; j < specials.length; j++) {
         if(temp === specials[j]) {
@@ -75,7 +71,6 @@ export default class MonsterController {
         specials.push(temp);
       }
     }
-    //console.log(specials);
     return specials
   }
 
