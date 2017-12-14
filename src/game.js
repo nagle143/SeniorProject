@@ -9,10 +9,13 @@ import Tesla from "./Towers/tesla.js";
 import GlueMachine from "./Towers/gluemachine.js";
 import FlameThrower from "./Towers/flamethrower.js";
 
+import Particle from "./particles.js";
+
 import Map from "./maps.js";
 import MonsterController from "./monstercontroller.js";
 import Selected from './selected.js';
 import Money from './money.js';
+import BuildMenu from './buildmenu.js';
 //import Enemy from './Enemies/enemy.js';
 
 /** @function Math.randomBetween
@@ -63,23 +66,19 @@ export default class Game {
     //Object Arrays
     this.projectiles = [];
     this.towers = [];
+    this.particles = [];
     this.mode = null;
     this.map = null;
     this.initMode(mode);
-    this.towers.push(new RapidFire(400, 400, this.size.width));
-    this.towers.push(new RapidFire(400, 250, this.size.width));
-    this.towers.push(new Sentry(400, 600, this.size.width));
-    this.towers.push(new RailGun(600, 600, this.size.width));
-    this.towers.push(new Tesla(325, 475, this.size.width));
-    this.towers.push(new FlameThrower(550, 475, this.size.width));
-    this.towers.push(new RocketLauncher(250, 300, this.size.width));
-    this.towers.push(new GlueMachine(250, 450, this.size.width));
     this.monstercontroller = new MonsterController('wave', this.map.path, this.size.width);
     //Important variables
     this.lives = 30;
+    this.kills = 0;
     this.money = new Money(100);
     this.selected = null;
+    this.BuildMenu = null;
     this.mouseMode = 'selecting';
+    this.paused = false;
 
     //Back Buffer
     this.backBufferCanvas = document.getElementById("canvas");
@@ -104,7 +103,7 @@ export default class Game {
     this.screenBufferCanvas.onmouseup = this.handleMouseUp;
 
     //100fps
-    this.interval = setInterval(this.loop, 1000/100);
+    this.interval = setInterval(this.loop, 1000/60);
   }
 
   //Mouse Events
@@ -127,7 +126,22 @@ export default class Game {
     switch (event.keyCode) {
       case 66:
         this.mouseMode = 'build';
+        if(this.selected) {
+          this.selected.object.selected = false;
+          this.selected = null;
+        }
         break;
+      case 27:
+        this.mouseMode = 'selecting';
+        this.BuildMenu = null;
+        break;
+      case 32:
+        if(this.paused) {
+          this.paused = false;
+        }
+        else {
+          this.paused = true;
+        }
       default:
 
     }
@@ -140,7 +154,9 @@ export default class Game {
       for(let i = 0; i < this.selected.upgradeButtons.length; i++) {
         if(this.circleRectangleCollision(x, y, 2, this.selected.upgradeButtons[i].x, this.selected.upgradeButtons[i].y, this.selected.upgradeButtons[i].width, this.selected.upgradeButtons[i].height)) {
           found = true;
-          if(!this.selected.object.upgrades[i]) {
+          if(!this.selected.object.upgrades[i] && this.selected.prices[i] <= this.money.money) {
+            this.money.money -= this.selected.prices[i];
+            this.selected.object.value += Math.round(this.selected.prices[i] * 0.70);
             this.selected.object.applyUpgrade(i);
           }
           break;
@@ -169,6 +185,21 @@ export default class Game {
           found = true;
       }
     });
+    if(found) {
+      return;
+    }
+    if(this.BuildMenu) {
+      for(let i = 0; i < this.BuildMenu.buttons.length; i++) {
+        if(this.circleRectangleCollision(x, y, 2, this.BuildMenu.buttons[i].x, this.BuildMenu.buttons[i].y, this.BuildMenu.buttons[i].width, this.BuildMenu.buttons[i].height)) {
+          found = true;
+          if(this.money.money >= this.BuildMenu.info[i].cost) {
+            this.money.money -= this.BuildMenu.info[i].cost;
+            this.createTower(i);
+          }
+          break;
+        }
+      }
+    }
   }
 
   checkSpot(x, y) {
@@ -179,15 +210,28 @@ export default class Game {
     if(y < 50 || y > 750) {
       return;
     }
-    this.towers.forEach(tower => {
-      if(this.circleCollisionDetection(x, y, tower.size, tower.x, tower.y, tower.size)) {
-        //this.selected = {object: tower, type: 'tower'};
+    for(let i = 0; i < this.towers.length; i++) {
+      if(this.circleCollisionDetection(x, y, this.towers[i].size, this.towers[i].x, this.towers[i].y, this.towers[i].size)) {
         blocked = true;
+        break;
       }
-    });
-    if(blocked) {
-      console.log('BLOCKED');
     }
+    if(blocked) {
+      this.mouseMode = 'selecting';
+      return;
+    }
+    for(let i = 0; i < this.map.tiles.length; i++) {
+      if(this.circleRectangleCollision(x, y, 20, this.map.tiles[i].x, this.map.tiles[i].y, 50, 50)) {
+        blocked = true;
+        break;
+      }
+    }
+    if(blocked) {
+      this.mouseMode = 'selecting';
+      return;
+    }
+    this.BuildMenu = new BuildMenu(x, y);
+    this.mouseMode = 'selecting';
   }
 
   handleMouseUp(event) {
@@ -248,6 +292,35 @@ export default class Game {
     return (dist <= (cr * cr));
   }
 
+  createTower(ID) {
+    switch (ID) {
+      case 0:
+        this.towers.push(new RapidFire(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      case 1:
+        this.towers.push(new RocketLauncher(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      case 2:
+        this.towers.push(new Sentry(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      case 3:
+        this.towers.push(new RailGun(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      case 4:
+        this.towers.push(new Tesla(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      case 5:
+        this.towers.push(new GlueMachine(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      case 6:
+        this.towers.push(new FlameThrower(this.BuildMenu.x, this.BuildMenu.y, this.size.width));
+        break;
+      default:
+
+    }
+    this.BuildMenu = null;
+  }
+
   createProjectile(tower, enemy, direction) {
     let x = 0;
     let y = 0;
@@ -274,9 +347,40 @@ export default class Game {
     }
   }
 
+  fire(numParticles, color, tower) {
+    let x = 0;
+    let y = 0;
+    let random = 0;
+    for(let i = 0; i < numParticles; i++) {
+      random = Math.randomBetween(tower.direction - Math.PI / 8, tower.direction + Math.PI / 8);
+      x = tower.x + Math.sin(random) * tower.size;
+      y = tower.y - Math.cos(random) * tower.size;
+      this.particles.push(new Particle (x, y, random, Math.randomInt(2, 3) , color, 50, tower.range));
+    }
+  }
+
+  rail(numParticles, color, tower) {
+    let x = 0;
+    let y = 0;
+    let random = 0;
+    for(let i = 0; i < numParticles; i++) {
+      let test = Math.randomBetween(10, tower.range);
+      x = tower.x + Math.sin(tower.direction) * test;
+      y = tower.y - Math.cos(tower.direction) * test;
+      if(Math.random() > 0.50) {
+        random = tower.direction + Math.PI / 8;
+      }
+      else {
+        random = tower.direction - Math.PI / 8;
+      }
+      this.particles.push(new Particle(x, y, random, 1, color, 30, 30));
+    }
+  }
+
   shoot(tower, enemy) {
     tower.reloading = true;
     let direction = 0.0;
+    let random = 0;
     let damage = Math.randomInt(tower.minDamage, tower.MaxDamage + 1);
     switch (tower.name) {
       case 'Plasma Turret':
@@ -291,6 +395,15 @@ export default class Game {
         direction = Math.getDirection(tower.x, tower.y, enemy.x, enemy.y);
         tower.direction = direction;
         enemy.hit(damage, tower.type, tower.effect);
+        random = Math.randomInt(4, 6)
+        for(let i = 0; i < random; i++) {
+          if(tower.upgrades[0] || tower.upgrades[1]) {
+            this.rail(Math.randomInt(4, 7), 'violet', tower);
+          }
+          else {
+            this.rail(Math.randomInt(4, 7), 'yellow', tower);
+          }
+        }
         break;
       case 'Flame Thrower':
         tower.targets = enemy;
@@ -305,6 +418,15 @@ export default class Game {
               }
             }
         });
+        random = Math.randomInt(3, 5)
+        for(let i = 0; i < random; i++) {
+          if(tower.upgrades[3]) {
+            this.fire(Math.randomInt(3, 5), 'green', tower);
+          }
+          else {
+            this.fire(Math.randomInt(3, 5), 'blue', tower);
+          }
+        }
         break;
       default:
         console.log('Error in shoot')
@@ -414,11 +536,11 @@ export default class Game {
       if(check === 'end') {
         this.lives--;
         this.removeMonster(i);
-        console.log("Lives: " + this.lives);
       }
       else if(check === 'killed') {
         this.money.money += this.monstercontroller.enemies[i].bounty;
         this.removeMonster(i);
+        this.kills++;
       }
     }
 
@@ -443,12 +565,32 @@ export default class Game {
         this.projectiles.splice(i, 1);
       }
     }
+    for(let i = 0; i < this.particles.length; i++) {
+        this.particles[i].update();
+        if(this.particles[i].life <= 0) {
+          this.particles.splice(i, 1);
+        }
+    }
     this.towers.forEach(tower => {
       tower.update();
     });
     if(this.selected) {
       this.selected.update();
     }
+    if(this.BuildMenu) {
+      this.BuildMenu.update();
+    }
+  }
+
+  stats() {
+    this.backBufferContext.save();
+    this.backBufferContext.fillStyle = "red";
+    this.backBufferContext.font = 'bolder 20px Arial';
+    this.backBufferContext.fillText("Money: $" + this.money.money, 500, 20);
+    this.backBufferContext.fillText("Lives: " + this.lives, 675, 20);
+    this.backBufferContext.fillText("Kills: " + this.kills, 775, 20);
+    this.backBufferContext.fillText("Wave: " + this.monstercontroller.wave, 875, 20);
+    this.backBufferContext.restore();
   }
 
   /** @function render
@@ -464,10 +606,17 @@ export default class Game {
     this.projectiles.forEach(projectile => {
       projectile.render(this.backBufferContext);
     });
+    this.particles.forEach(particle => {
+      particle.render(this.backBufferContext);
+    });
     this.monstercontroller.render(this.backBufferContext);
     if(this.selected) {
       this.selected.render(this.backBufferContext);
     }
+    if(this.BuildMenu) {
+      this.BuildMenu.render(this.backBufferContext);
+    }
+    this.stats();
     //Bit blit the back buffer onto the screen
     this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
   }
@@ -476,7 +625,9 @@ export default class Game {
     * Function will continuosly loop the update & render functions
     */
   loop() {
-    this.update();
-    this.render();
+    if(!this.paused) {
+      this.update();
+      this.render();
+    }
   }
 }

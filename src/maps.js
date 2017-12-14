@@ -3,8 +3,6 @@ import MapData from './maps.json';
 
 export default class Map {
   constructor(width, height, seed) {
-    /*this.path = [{x: -10, y: 100}, {x: 200, y: 100}, {x: 200, y: 500}, {x: 600, y: 500}, {x: 600, y: 100}, {x: 300, y: 100},
-       {x: 300, y: 700}, {x: width + 10, y: 700}]; */
     this.path = [];
     this.seed = seed;
     this.width = width;
@@ -18,7 +16,6 @@ export default class Map {
     this.generator.src = 'Sprites/Generator.png';
     this.general = new Image();
     this.general.src = 'Sprites/Path.png';
-    //this.generateTrack();
   }
 
   getTrack() {

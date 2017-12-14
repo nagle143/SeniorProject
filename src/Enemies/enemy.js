@@ -196,6 +196,7 @@ export default class Enemy {
         this.calculateMove(this.speedModifer);
       }
       else {
+        this.dead = true;
         return 'end';
       }
     }

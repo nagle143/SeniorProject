@@ -23,6 +23,7 @@ export default class FlameThrower extends Tower {
     this.effect.push('burn');
     this.minDamage = 1;
     this.maxDamage = 2;
+    this.value = 25;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
@@ -85,24 +86,6 @@ export default class FlameThrower extends Tower {
   }
 
   render(ctx) {
-    if(this.targets) {
-      //let tempx = this.x + Math.sin(this.direction + Math.PI / 8) * this.range;
-      //let tempy = this.y - Math.cos(this.direction + Math.PI / 8) * this.range;
-      //let test1 = {x: tempx, y: tempy};
-      //tempx = this.x + Math.sin(this.direction - Math.PI / 8) * this.range;
-      //tempy = this.y - Math.cos(this.direction - Math.PI / 8) * this.range;
-      //let test2 = {x: tempx, y: tempy};
-      ctx.save();
-      ctx.strokeStyle = 'white';
-      ctx.beginPath();
-      ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.targets.x, this.targets.y);
-      //ctx.moveTo(this.x, this.y);
-      //ctx.lineTo(test1.x, test1.y);
-      //ctx.moveTo(this.x, this.y);
-      //ctx.lineTo(test2.x, test2.y);
-      ctx.stroke();
-    }
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.direction - Math.PI / 2);

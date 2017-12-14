@@ -17,7 +17,7 @@ export default class MonsterController {
 
   //x, y, speed, health, armor, specials, shield, size, color
   randomWave() {
-    let numMonsters = Math.randomInt(5 + this.wave * 2, 10 + this.wave * 2);
+    let numMonsters = Math.randomInt(8 + this.wave * 2, 12 + this.wave * 2);
     for(let i = 0; i < numMonsters; i++) {
       let specials = [];
       let random = Math.random();
@@ -35,7 +35,6 @@ export default class MonsterController {
       }
       this.generated.push({x: this.track[0].x, y: this.track[0].y, speed: 0.75, health: Math.round((25 + this.wave) * 1.5), armor: Math.round((1 + this.wave) * 1.10), properties: specials, path: this.track, shield: Math.round((10 + this.wave) * 1.50), color: 'red'});
     }
-    console.log(this.generated);
   }
 
   randomSpecials(num) {

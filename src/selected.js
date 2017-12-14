@@ -9,6 +9,7 @@ export default class Selected {
     this.name = name;
     this.description = '';
     this.options = [];
+    this.prices = [];
     this.upgradeButtons = [];
     if(this.type === 'tower') {
       this.upgrades = this.object.upgrades;
@@ -43,7 +44,7 @@ export default class Selected {
     let y = 450;
     let width = 140;
     let height = 75;
-    let scaleY = height + 10;
+    let scaleY = height;
     for(let i = 0; i < this.upgrades.length; i++) {
       this.upgradeButtons.push({x: x, y: y, width: width, height: height});
       y += scaleY;
@@ -94,32 +95,32 @@ export default class Selected {
   determineUpgrades() {
     switch (this.name) {
       case 'Plasma Turret':
-        this.description = 'Rapid Fire Energy Tower';
         this.options = ['Cooling System', 'Hotter Plasma', 'Improved Range', 'Nitrogen Cooling'];
+        this.prices = [20, 25, 30, 25];
         break;
       case 'Rocket Launcher':
-        this.description = 'Fires AOE Explosives';
         this.options = ['Range Finder', 'Huge Explosives', 'Volatile', 'Plasma Grenades'];
+        this.prices = [30, 35, 40, 20];
         break;
       case 'Sentry Gun':
-        this.description =  'Rapid Fire Physical Tower';
         this.options = ['Dense Rounds', 'Multi-Targeting', 'Improved Range', 'Optimized'];
+        this.prices = [20, 35, 40, 30];
         break;
       case 'Rail Gun':
-        this.description =  'Slow Firing Physical Tower';
         this.options = ['Dense Slugs', 'Hyper-Sonic', 'Improved Range', 'Cooling System'];
+        this.prices = [40, 40, 30, 30];
         break;
       case 'Tesla Tower':
-        this.description =  'MultiTargeting Energy Tower';
         this.options = ['High Voltage', 'More Targets', 'Improved Range', 'Death Tower'];
+        this.prices = [20, 30, 25, 50];
         break;
       case 'Industrial Gluer':
-        this.description =  'Mass Slowing Tower';
         this.options = ['Faster Production', 'Bigger Globs', 'Improved Range', 'Acid Glue'];
+        this.prices = [30, 40, 30, 40];
         break;
       case 'Flame Thrower':
-        this.description =  'Cone Energy Tower';
         this.options = ['Insane Heat', 'Pyro-Maniac', 'Improved Range', 'Acid Fire'];
+        this.prices = [30, 50, 30, 40];
         break;
       default:
         console.log("Invalid Name");
@@ -139,7 +140,8 @@ export default class Selected {
       }
 
       ctx.fillStyle = 'black';
-      ctx.fillText(this.options[i], this.upgradeButtons[i].x + 5, Math.round(this.upgradeButtons[i].y + this.upgradeButtons[i].height / 2));
+      ctx.fillText(this.options[i], this.upgradeButtons[i].x + 5, Math.round(this.upgradeButtons[i].y + this.upgradeButtons[i].height / 2) - 10);
+      ctx.fillText('$' + this.prices[i], this.upgradeButtons[i].x + 5, Math.round(this.upgradeButtons[i].y + this.upgradeButtons[i].height / 2) + 10);
     }
     ctx.restore();
   }

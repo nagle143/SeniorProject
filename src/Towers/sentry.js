@@ -21,6 +21,7 @@ export default class Sentry extends Tower {
     this.type = 'kinetic';
     this.minDamage = 18;
     this.maxDamage = 22;
+    this.value = 18;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;

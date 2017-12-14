@@ -23,6 +23,7 @@ export default class Tesla extends Tower {
     this.type = 'energy';
     this.minDamage = 8;
     this.maxDamage = 12;
+    this.value = 21;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;

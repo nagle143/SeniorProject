@@ -23,6 +23,7 @@ export default class GlueMachine extends Tower {
     this.effect.push('slow');
     this.minDamage = 8;
     this.maxDamage = 10;
+    this.value = 25;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;

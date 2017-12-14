@@ -21,6 +21,7 @@ export default class RapidFire extends Tower {
     this.type = 'energy';
     this.minDamage = 15;
     this.maxDamage = 20;
+    this.value = 17;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;

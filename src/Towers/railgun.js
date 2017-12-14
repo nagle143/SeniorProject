@@ -21,6 +21,7 @@ export default class RailGun extends Tower {
     this.type = 'kinetic';
     this.minDamage = 40;
     this.maxDamage = 50;
+    this.value = 42;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;

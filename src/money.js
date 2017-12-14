@@ -5,7 +5,7 @@ export default class Money {
     this.money = money;
     this.interestRate = 1.10;
     this.interest = 0;
-    this.income = 5;
+    this.income = 3;
     this.timer = 180;
   }
 

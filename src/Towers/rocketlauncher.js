@@ -21,6 +21,7 @@ export default class RocketLauncher extends Tower {
     this.type = 'kinetic';
     this.minDamage = 20;
     this.maxDamage = 35;
+    this.value = 21;
     this.image = new Image();
     this.image.onload = () => {
       this.size = this.size * this.image.width/this.image.height;
