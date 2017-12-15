@@ -10,6 +10,7 @@ export default class RapidShot extends Projectile {
     super.initSpeed();
   }
 
+  //Might want to move this to the super class
   seek() {
     var dx = this.x - this.target.x;
     var dy = this.y - this.target.y;

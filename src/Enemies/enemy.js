@@ -1,8 +1,24 @@
 import Sprite from '../sprite.js';
 
-
-
+/** @class
+* class to determine the monsters
+*/
 export default class Enemy {
+  /** @constructor
+  * initialzes the monsters properties
+  * @param {int} x - x position
+  * @param {int} y - y position
+  * @param {int} speed - speed of the monster
+  * @param {int} health - max health of the monster
+  * @param {int} armor - armor of the monster, each point of armor -2 damage received
+  * @param {array of strings} specials - array of special properties that modify the monsters base stats
+  * @param {int} shield - max shield of the monster, armor doesn't apply to shields
+  * @param {array of points} track - path the monsters should be taking
+  * @param {int} size - size the monster should scale to
+  * @param {string} color - color the monster should be, no longer used
+  * NOTE: Shields take more damage from energy attacks & less from kinetic attacks, shields also block status effects
+  * NOTE: Monsters without shields take more damage from kinetic attacks and less damage from energy attacks
+  */
   constructor(x, y, speed, health, armor, specials, shield, track, size, color) {
     //Postion variables
     this.x = x;
@@ -29,14 +45,18 @@ export default class Enemy {
     this.specials = specials;
     this.applySpecials();
     this.statusEffects = [];
+    //value you get from killing the monster
     this.bounty = Math.round(this.MAXHP * 0.10 * (this.specials.length + 1));
     //Name Property
+    //currently no other types
     this.name = "Robot";
     this.color = color;
     //Size of the monster
     this.size = Math.round(size * 0.01);
     this.selected = false;
+    //To make sure other objects delete their ties to this object
     this.dead = false;
+    //Sprite of the robot
     this.sprite = new Sprite('Test', this.direction);
   }
 
@@ -48,17 +68,21 @@ export default class Enemy {
   applySpecials() {
     this.specials.forEach(special => {
       switch (special) {
+        //Double armor
         case "Titanium Alloys":
           this.armor *= 2;
           break;
+        // +50% move speed
         case "Over-Clocked":
           this.speed *= 1.5;
           break;
+        //Large improvement on Regenerating health
         case "Nano-Bots":
           this.regeneration = Math.round(this.MAXHP * 0.06);
           this.REGEN = Math.round(this.REGEN / 1.75);
           this.regenTimer = this.REGEN;
           break;
+        //Shields recharge much faster
         case "Enhanced Power":
           this.MAXSHIELD *= 2;
           this.shield = this.MAXSHIELD;
@@ -75,6 +99,7 @@ export default class Enemy {
       let check = false;
       for(let i = 0; i < this.statusEffects.length; i++) {
         if(status === this.statusEffects[i].name) {
+          //Non refreshing status effects
           if(status !== 'acid' || status !== 'burn') {
             this.statusEffects[i].timer = 60;
           }
@@ -82,6 +107,7 @@ export default class Enemy {
           break;
         }
       }
+      //New Status effect
       if(!check) {
         if(status === 'acid') {
           this.statusEffects.push({name: status, timer: 10})
@@ -96,6 +122,7 @@ export default class Enemy {
   applyStatusEffects() {
     for(let i = 0; i < this.statusEffects.length; i++) {
       switch (this.statusEffects[i].name) {
+        //Slow movement by 50%
         case 'slow':
           this.speedModifer = 0.50;
           this.statusEffects[i].timer--;
@@ -105,6 +132,7 @@ export default class Enemy {
           }
           this.calculateMove();
           break;
+        //Tick damage every 10 frames
         case 'burn':
           if(this.statusEffects[i].timer % 10 === 0) {
             let damage = 6 - this.armor * 2;
@@ -114,6 +142,7 @@ export default class Enemy {
           }
           this.statusEffects[i].timer--;
           break;
+        //Reomve 1 armor every 5 frames
         case 'acid':
           if(this.statusEffects[i].timer % 5 === 0) {
             this.armor--;

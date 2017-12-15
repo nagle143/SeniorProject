@@ -30,6 +30,7 @@ export default class Rocket extends Projectile {
     this.type = 'energy';
   }
 
+  //Might want to move this to the super class
   seek() {
     var dx = this.x - this.target.x;
     var dy = this.y - this.target.y;

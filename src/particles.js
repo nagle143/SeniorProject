@@ -1,6 +1,7 @@
 
 /** @class Particle
-  * class to handle a particle's life
+  * class to handle a particle's life, pretty simplistic right now, ripped this out of one of my other projects
+  * but changed it to be squares for a more pixely style and changed the arguements a bit.
   */
 export default class Particle {
   /** @constructor
@@ -19,8 +20,10 @@ export default class Particle {
     this.life = life;
     this.color = color;
     this.speed = speed;
+    //Caclulate the independent speeds of the particle
     this.speedX = Math.sin(direction) * this.speed;
     this.speedY = -Math.cos(direction) * this.speed;
+    //Semi random decay distance
     this.decayDistance = Math.randomBetween(decay * 0.80, decay);
     this.size = 4;
   }
@@ -31,6 +34,7 @@ export default class Particle {
     var dx = this.startX - this.x;
     var dy = this.startY - this.y;
     this.life--;
+    //Stop updating the position if you are at the decay distance
     if(this.decayDistance * this.decayDistance <= dx * dx + dy * dy) {
       return;
     }

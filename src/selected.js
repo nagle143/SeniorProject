@@ -1,20 +1,31 @@
 
-
+/** @class Selected
+* Object to determine what to do with a selected object
+*/
 export default class Selected {
+  /** @constructor
+  * Initialzes the selected object
+  * @param {object} object - selected object
+  * @param {string} type - type of the object selected
+  * @param {string} name - name of the tower if it is one
+  */
   constructor(object, type, name) {
     this.width = 130;
     this.height = 150;
     this.object = object;
     this.type = type;
     this.name = name;
+    //currently never used, will be when I improve the tool tip
     this.description = '';
     this.options = [];
     this.prices = [];
     this.upgradeButtons = [];
     if(this.type === 'tower') {
+      //Create the upgrade buttons
       this.upgrades = this.object.upgrades;
       this.initButtons();
     }
+    //If the object is close to bottom, move the toop tip above it
     if(object.y > 500) {
       this.y = object.y - this.height;
     }
@@ -22,23 +33,32 @@ export default class Selected {
       this.y = object.y;
     }
     this.x = object.x + 30;
+    //Load the images for the buttons
     this.button = new Image();
     this.button.onload = () => {
 
     }
+    //Image for upgrades you don't have
     this.button.src = 'Sprites/Button.png';
+
     this.button2 = new Image();
     this.button2.onload = () => {
 
     }
+    //Image for the button you do have
     this.button2.src = 'Sprites/ButtonGreen.png';
+
     this.image = new Image();
     this.image.onload = () => {
       //this.size = this.size * this.image.width/this.image.height;
     }
+    //Image for the ToolTip displaying the object info
     this.image.src = 'Sprites/ToolTip.png';
   }
 
+  /** @function initButton
+  * funciton to initialze the buttons
+  */
   initButtons() {
     let x = 810;
     let y = 450;
@@ -51,6 +71,9 @@ export default class Selected {
     }
   }
 
+  /** @function update
+  * Update the position of the ToolTip for moving objects, like monsters
+  */
   update() {
     if(this.object.y > 500) {
       this.y = this.object.y - this.height;
@@ -61,6 +84,10 @@ export default class Selected {
     this.x = this.object.x + 30;
   }
 
+  /** @function determineDisplay
+  * funciton to check which type of object is being selected
+  * @param {context} ctx - backBufferContext from game.js
+  */
   determineDisplay(ctx) {
     switch (this.type) {
       case 'tower':
@@ -74,6 +101,10 @@ export default class Selected {
     }
   }
 
+  /** @function displayTowerInfo
+  * displays the info of the tower in the ToolTip
+  * @param {context} ctx - backBufferContext from game.js
+  */
   displayTowerInfo(ctx) {
     ctx.save();
     ctx.fillStyle = 'black';
@@ -92,6 +123,9 @@ export default class Selected {
     this.displayUpgrades(ctx);
   }
 
+  /** @function determineUpgrades
+  * initialzes the upgrades for the towers to display onto the buttons
+  */
   determineUpgrades() {
     switch (this.name) {
       case 'Plasma Turret':
@@ -127,6 +161,10 @@ export default class Selected {
     }
   }
 
+  /** @function displayUpgrades
+  * funciton to display the upgrade buttons
+  * @param {context} ctx - backBufferContext from game.js
+  */
   displayUpgrades(ctx) {
     this.determineUpgrades();
     ctx.save();
@@ -146,7 +184,12 @@ export default class Selected {
     ctx.restore();
   }
 
+  /** @function displayMonsterInfo
+  * funciton to display the monster stats in the ToolTip
+  * @param {context} ctx - backBufferContext from game.js
+  */
   displayMonsterInfo(ctx) {
+    //If the monster has alot of specials extend the ToolTip
     if(this.object.specials.length > 1) {
       this.height = 200;
     }
@@ -171,9 +214,13 @@ export default class Selected {
   }
 
 
+  /** @function render
+  * funciton to display the ToolTip & call the other display funcitons
+  */
   render(ctx) {
     ctx.save();
     ctx.save();
+    //Make the ToolTip Slightly transparent
     ctx.globalAlpha = 0.40;
     ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     ctx.restore();
