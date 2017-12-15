@@ -79,6 +79,7 @@ export default class Game {
     this.BuildMenu = null;
     this.mouseMode = 'selecting';
     this.paused = false;
+    this.gameOver = false;
 
     //Back Buffer
     this.backBufferCanvas = document.getElementById("canvas");
@@ -102,8 +103,37 @@ export default class Game {
     this.screenBufferCanvas.onmousedown = this.handleMouseDown;
     this.screenBufferCanvas.onmouseup = this.handleMouseUp;
 
+    //Audio
+    //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
+    this.theme = new Audio('Sound/theme.wav');
+    this.theme.volume = 0.2;
+    this.theme.loop = true;
+    this.theme.play();
+
     //100fps
     this.interval = setInterval(this.loop, 1000/60);
+  }
+
+  reset() {
+    this.projectiles = [];
+    this.towers = [];
+    this.particles = [];
+    this.mode = null;
+    this.map = null;
+    this.initMode('well');
+    this.monstercontroller = new MonsterController('wave', this.map.path, this.size.width);
+    //Important variables
+    this.lives = 30;
+    this.kills = 0;
+    this.money = new Money(100);
+    this.selected = null;
+    this.BuildMenu = null;
+    this.mouseMode = 'selecting';
+    this.paused = false;
+    this.gameOver = false;
+    this.theme.volume = 0.2;
+    this.theme.loop = true;
+    this.theme.play();
   }
 
   //Mouse Events
@@ -142,6 +172,11 @@ export default class Game {
         else {
           this.paused = true;
         }
+        break;
+      case 192:
+        this.theme.pause();
+        this.reset();
+        break;
       default:
 
     }
@@ -536,6 +571,9 @@ export default class Game {
       if(check === 'end') {
         this.lives--;
         this.removeMonster(i);
+        if(this.lives <= 0) {
+          this.gameOver = true;
+        }
       }
       else if(check === 'killed') {
         this.money.money += this.monstercontroller.enemies[i].bounty;
@@ -625,9 +663,15 @@ export default class Game {
     * Function will continuosly loop the update & render functions
     */
   loop() {
-    if(!this.paused) {
+    if(!this.paused && !this.gameOver) {
       this.update();
       this.render();
+    }
+    if(this.gameOver) {
+      this.theme.pause();
+      this.screenBufferContext.fillStyle = 'red';
+      this.screenBufferContext.font = "bolder 50px Times New Roman";
+      this.screenBufferContext.fillText("GAME OVER", 400, 400);
     }
   }
 }
